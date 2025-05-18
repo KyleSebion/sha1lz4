@@ -79,4 +79,3 @@ fn main() -> Result<(), Error> {
     println!("{},{}", r.into_inner().to_hex_string(), w.to_hex_string());
     Ok(())
 }
-//cargo r; wsl bash -c ' lz4 -c a.txt.lz4 | sha1sum a.txt.lz4 - | cut -d\  -f 1 | paste -sd,'
