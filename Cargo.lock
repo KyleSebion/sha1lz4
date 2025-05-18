@@ -330,8 +330,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "sha1outinlz4"
-version = "0.1.0"
+name = "sha1lz4"
+version = "1.0.0"
 dependencies = [
  "clap",
  "clio",
