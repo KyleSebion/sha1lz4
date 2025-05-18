@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 itertools = "0.14.0"
+lz4_flex = { version = "0.11.3", features = ["frame"] }
 sha1 = "0.10.6"

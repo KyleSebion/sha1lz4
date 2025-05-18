@@ -1,20 +1,64 @@
-use std::{fs::File, io::{Error, Read}};
-use sha1::{digest::generic_array::functional::FunctionalSequence, Digest, Sha1};
+use sha1::{
+    Digest, Sha1, Sha1Core,
+    digest::{core_api::CoreWrapper, generic_array::functional::FunctionalSequence},
+};
+use std::{
+    fs::File,
+    io::{Error, Read, Write},
+};
+
+struct Sha1Reader<R: Read> {
+    inner: R,
+    hasher: CoreWrapper<Sha1Core>,
+}
+impl<R: Read> Sha1Reader<R> {
+    fn new(inner: R) -> Self {
+        Self {
+            inner,
+            hasher: Sha1::new(),
+        }
+    }
+    fn to_hex_string(self) -> String {
+        self.hasher.finalize().map(|b| format!("{b:02x}")).join("")
+    }
+}
+impl<R: Read> Read for Sha1Reader<R> {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error> {
+        self.inner
+            .read(buf)
+            .inspect(|&len| self.hasher.update(&buf[0..len]))
+    }
+}
+struct Sha1Writer {
+    hasher: CoreWrapper<Sha1Core>,
+}
+impl Sha1Writer {
+    fn new() -> Self {
+        Self {
+            hasher: Sha1::new(),
+        }
+    }
+    fn to_hex_string(self) -> String {
+        self.hasher.finalize().map(|b| format!("{b:02x}")).join("")
+    }
+}
+impl Write for Sha1Writer {
+    fn write(&mut self, buf: &[u8]) -> Result<usize, Error> {
+        self.hasher.update(buf);
+        Ok(buf.len())
+    }
+    fn flush(&mut self) -> Result<(), Error> {
+        Ok(())
+    }
+}
 
 fn main() -> Result<(), Error> {
-    let mut h = Sha1::new();
-    h.update(b"00");
-    println!("{}", h.finalize().map(|b| format!("{b:02x}")).join(""));
-
-
-    let mut f = File::open("C:\\a.txt")?;
-    let mut b =  [0u8; 256 * 1024];
-    let mut oh = Sha1::new();
-    loop {
-        let l = f.read(&mut b)?;
-        if l == 0 { break; }
-        oh.update(&b[0..l]);
-    }
-    println!("{}", oh.finalize().map(|b| format!("{b:02x}")).join(""));
+    let mut r = lz4_flex::frame::FrameDecoder::new(Sha1Reader::new(File::open(
+        r"C:\Users\kyle\source\repos\rust\sha1outinlz4\a.txt.lz4",
+    )?));
+    let mut w = Sha1Writer::new();
+    std::io::copy(&mut r, &mut w)?;
+    println!("{},{}", r.into_inner().to_hex_string(), w.to_hex_string());
     Ok(())
 }
+//cargo r; wsl bash -c ' lz4 -c a.txt.lz4 | sha1sum a.txt.lz4 - | cut -d\  -f 1 | paste -sd,'
