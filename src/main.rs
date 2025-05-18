@@ -7,6 +7,14 @@ use std::{
     io::{Error, Read, Write},
 };
 
+trait ToHexString {
+    fn to_hex_string(self) -> String;
+}
+impl ToHexString for CoreWrapper<Sha1Core> {
+    fn to_hex_string(self) -> String {
+        self.finalize().map(|b| format!("{b:02x}")).join("")
+    }
+}
 struct Sha1Reader<R: Read> {
     inner: R,
     hasher: CoreWrapper<Sha1Core>,
@@ -18,8 +26,10 @@ impl<R: Read> Sha1Reader<R> {
             hasher: Sha1::new(),
         }
     }
+}
+impl<R: Read> ToHexString for Sha1Reader<R> {
     fn to_hex_string(self) -> String {
-        self.hasher.finalize().map(|b| format!("{b:02x}")).join("")
+        self.hasher.to_hex_string()
     }
 }
 impl<R: Read> Read for Sha1Reader<R> {
@@ -38,8 +48,10 @@ impl Sha1Writer {
             hasher: Sha1::new(),
         }
     }
+}
+impl ToHexString for Sha1Writer {
     fn to_hex_string(self) -> String {
-        self.hasher.finalize().map(|b| format!("{b:02x}")).join("")
+        self.hasher.to_hex_string()
     }
 }
 impl Write for Sha1Writer {
