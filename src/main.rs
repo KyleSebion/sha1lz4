@@ -1,11 +1,18 @@
+use clap::Parser;
+use clio::Input;
 use sha1::{
     Digest, Sha1, Sha1Core,
     digest::{core_api::CoreWrapper, generic_array::functional::FunctionalSequence},
 };
 use std::{
-    fs::File,
     io::{Error, Read, Write},
 };
+#[derive(Parser)]
+#[command(version)]
+struct Opt {
+    #[clap(short, long, value_parser)]
+    input: Input,
+}
 
 trait ToHexString {
     fn to_hex_string(self) -> String;
@@ -65,9 +72,8 @@ impl Write for Sha1Writer {
 }
 
 fn main() -> Result<(), Error> {
-    let mut r = lz4_flex::frame::FrameDecoder::new(Sha1Reader::new(File::open(
-        r"C:\Users\kyle\source\repos\rust\sha1outinlz4\a.txt.lz4",
-    )?));
+    let opt = Opt::parse();
+    let mut r = lz4_flex::frame::FrameDecoder::new(Sha1Reader::new(opt.input));
     let mut w = Sha1Writer::new();
     std::io::copy(&mut r, &mut w)?;
     println!("{},{}", r.into_inner().to_hex_string(), w.to_hex_string());
