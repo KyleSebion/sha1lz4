@@ -57,13 +57,8 @@ impl Sha1Writer {
         let (result_tx, result_rx) = mpsc::channel();
         thread::spawn(move || {
             let mut hasher = Sha1::new();
-            loop {
-                if let Ok(r) = bytes_rx.recv() {
-                    hasher.update(r);
-                } else {
-                    // caused by drop(self.bytes_tx)
-                    break;
-                }
+            while let Ok(r) = bytes_rx.recv() {
+                hasher.update(r);
             }
             result_tx
                 .send(hasher.to_hex_string())
