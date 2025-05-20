@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'sha1outinlz4'",
+            "name": "Debug executable 'sha1lz4'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=sha1outinlz4",
-                    "--package=sha1outinlz4"
+                    "--bin=sha1lz4",
+                    "--package=sha1lz4"
                 ],
                 "filter": {
-                    "name": "sha1outinlz4",
+                    "name": "sha1lz4",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'sha1outinlz4'",
+            "name": "Debug unit tests in executable 'sha1lz4'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=sha1outinlz4",
-                    "--package=sha1outinlz4"
+                    "--bin=sha1lz4",
+                    "--package=sha1lz4"
                 ],
                 "filter": {
-                    "name": "sha1outinlz4",
+                    "name": "sha1lz4",
                     "kind": "bin"
                 }
             },
